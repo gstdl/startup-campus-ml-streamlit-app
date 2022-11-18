@@ -11,20 +11,21 @@ def predict_dataframe(df: pd.DataFrame) -> pd.DataFrame:
 
     for _, row in tqdm(df.iterrows()):
         pred_proba, pred = predict(
-                    row["InternetService"],
-                    row["Contract"],
-                    row["tenure"],
-                    row["TotalCharges"],
-                    row["MultipleLines"],
-                    row["OnlineSecurity"],
-                    row["PaymentMethod"],
-                )
+            row["InternetService"],
+            row["Contract"],
+            row["tenure"],
+            row["TotalCharges"],
+            row["MultipleLines"],
+            row["OnlineSecurity"],
+            row["PaymentMethod"],
+        )
         result = result.append(
             {
-                "customerID":row["customerID"],
-                "Prediction":pred,
-                "Predict Proba":pred_proba,
-            }, ignore_index=True
+                "customerID": row["customerID"],
+                "Prediction": pred,
+                "Predict Proba": pred_proba,
+            },
+            ignore_index=True,
         )
 
     return result
@@ -38,17 +39,12 @@ if uploaded_file is not None:
     dataframe = pd.read_csv(stringio)
     result = predict_dataframe(dataframe)
     st.write(result.astype(str))
-    
-    def convert_df(df):
-        return df.to_csv(index=False).encode('utf-8')
 
+    def convert_df(df):
+        return df.to_csv(index=False).encode("utf-8")
 
     csv = convert_df(result)
 
     st.download_button(
-        "Press to Download",
-        csv,
-        "pred.csv",
-        "text/csv",
-        key='download-csv'
+        "Press to Download", csv, "pred.csv", "text/csv", key="download-csv"
     )
