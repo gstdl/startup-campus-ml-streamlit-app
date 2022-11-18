@@ -1,8 +1,11 @@
 from typing import Dict, Union
 import pandas as pd
-from woe_transformer import WoeTransformer
+import numpy as np
+from sklearn.preprocessing import StandardScaler
+from .woe_transformer import WoeTransformer
 
 df = pd.read_csv("data/raw/telco_churn.csv")
+df["TotalCharges"] = df["TotalCharges"].str.replace(" ", "0").astype(np.float64)
 
 # selected_features = [
 #     "InternetService_WoE",
@@ -29,6 +32,9 @@ wt = WoeTransformer(X, y, {"No": "Events", "Yes": "Non events"})
 wt.single_fit("InternetService")
 wt.single_fit("Contract")
 
+standard_scaler = StandardScaler()
+standard_scaler.fit(X[["tenure", "TotalCharges"]])
+
 
 def transform(
     InternetService: str,
@@ -45,6 +51,9 @@ def transform(
         raise ValueError("Invalid OnlineSecurity")
     if PaymentMethod not in X["PaymentMethod"].unique():
         raise ValueError("Invalid PaymentMethod")
+    if isinstance(TotalCharges, str):
+        TotalCharges = np.float64(TotalCharges.replace(" ", "0"))
+    tenure, TotalCharges = standard_scaler.transform([[tenure, TotalCharges]]).flatten()
     return {
         "InternetService_WoE": wt.single_transform(
             "InternetService", pd.Series([InternetService])
@@ -61,4 +70,4 @@ def transform(
 
 
 if __name__ == "__main__":
-    print(transform("DSL", "One year", 3, 232345.22, "Yes", "No", "random"))
+    print(transform("DSL", "One year", 3, 232345.22, "Yes", "No", "Electronic check"))
