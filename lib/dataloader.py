@@ -1,4 +1,5 @@
 from typing import Dict, Union
+import streamlit as st
 import pandas as pd
 import numpy as np
 from sklearn.preprocessing import StandardScaler
@@ -7,15 +8,15 @@ from .woe_transformer import WoeTransformer
 df = pd.read_csv("data/raw/telco_churn.csv")
 df["TotalCharges"] = df["TotalCharges"].str.replace(" ", "0").astype(np.float64)
 
-# selected_features = [
-#     "InternetService_WoE",
-#     "Contract_WoE",
-#     "tenure",
-#     "TotalCharges",
-#     "MultipleLines_OH_No",
-#     "OnlineSecurity_OH_Yes",
-#     "PaymentMethod_OH_Electronic check",
-# ]
+selected_features = [
+    "InternetService_WoE",
+    "Contract_WoE",
+    "tenure",
+    "TotalCharges",
+    "MultipleLines_OH_No",
+    "OnlineSecurity_OH_Yes",
+    "PaymentMethod_OH_Electronic check",
+]
 
 pre_selected_features = [
     "InternetService",
@@ -36,6 +37,7 @@ standard_scaler = StandardScaler()
 standard_scaler.fit(X[["tenure", "TotalCharges"]])
 
 
+@st.cache
 def transform(
     InternetService: str,
     Contract: str,

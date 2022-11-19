@@ -10,6 +10,7 @@ from lib.dataloader import X, y
 from lib.machine_learning import predict
 
 import warnings
+
 warnings.filterwarnings("ignore")
 
 st.header("Business Insights")
@@ -17,25 +18,27 @@ st.write("PLACEHOLDER")
 
 st.header("Model Insights")
 
+
 @st.cache
 def do_calculation():
     pred_proba = np.zeros(len(X), dtype=np.float64)
     pred = []
     for ix, row in tqdm(X.iterrows()):
         temp = predict(
-                row["InternetService"],
-                row["Contract"],
-                row["tenure"],
-                row["TotalCharges"],
-                row["MultipleLines"],
-                row["OnlineSecurity"],
-                row["PaymentMethod"],
-            )
+            row["InternetService"],
+            row["Contract"],
+            row["tenure"],
+            row["TotalCharges"],
+            row["MultipleLines"],
+            row["OnlineSecurity"],
+            row["PaymentMethod"],
+        )
         pred_proba[ix] = temp[0]
         pred.append(temp[1])
     return pred_proba, pred
 
-with st.spinner('Crunching numbers...'):
+
+with st.spinner("Crunching numbers..."):
     pred_proba, pred = do_calculation()
 
 # @st.cache
@@ -60,8 +63,7 @@ st.pyplot(plot_confusion_matrix())
 
 # @st.cache
 def plot_roc_curve():
-    pred_proba_m_1 = 1 - pred_proba
-    fpr, tpr, _ = roc_curve(y, pred_proba_m_1)
+    fpr, tpr, _ = roc_curve(y.map({"No": 1, "Yes": 0}), pred_proba)
     roc_auc = auc(fpr, tpr)
 
     fig, ax = plt.subplots()
@@ -80,8 +82,9 @@ st.pyplot(plot_roc_curve())
 
 # @st.cache
 def plot_precision_recall_curve() -> plt.figure:
-    pred_proba_m_1 = 1 - pred_proba
-    precision, recall, thresholds = precision_recall_curve(y, pred_proba_m_1)
+    precision, recall, thresholds = precision_recall_curve(
+        y.map({"No": 1, "Yes": 0}), pred_proba
+    )
     thresholds = np.append(thresholds, 1)
     fig, ax = plt.subplots()
     ax.step(recall, precision, color="b", alpha=0.4, where="post")
@@ -91,5 +94,6 @@ def plot_precision_recall_curve() -> plt.figure:
     ax.set_xlim([0.0, 1.0])
     ax.set_title("Precision-Recall curve")
     return fig
+
 
 st.pyplot(plot_precision_recall_curve())
