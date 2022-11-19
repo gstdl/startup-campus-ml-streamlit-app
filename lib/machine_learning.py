@@ -75,11 +75,6 @@ def get_explainer():
     print(X.head())
 
     y = y.map({"No": 1, "Yes": 0})
-    # categorical_names = [
-    #     "MultipleLines_OH_No",
-    #     "OnlineSecurity_OH_Yes",
-    #     "PaymentMethod_OH_Electronic check",
-    # ]
 
     explainer = lime.lime_tabular.LimeTabularExplainer(
         X,
